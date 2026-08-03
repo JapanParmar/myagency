@@ -28,14 +28,21 @@ const navItems = [
 ];
 
 export default function Page() {
+  const [mounted, setMounted] = useState(false);
   const reduceMotion = useReducedMotion();
+  const isReduced = mounted ? Boolean(reduceMotion) : false;
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('hero');
 
   const sectionIds = useMemo(() => ['hero', ...navItems.map((item) => item.id), 'contact'], []);
 
   useEffect(() => {
-    if (reduceMotion) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isReduced) {
       return;
     }
 
@@ -57,7 +64,7 @@ export default function Page() {
       window.cancelAnimationFrame(frame);
       lenis.destroy();
     };
-  }, [reduceMotion]);
+  }, [mounted, isReduced]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -88,7 +95,7 @@ export default function Page() {
 
   return (
     <div className="relative min-h-screen overflow-x-clip" style={{ backgroundColor: 'var(--color-mist)', color: 'var(--color-ink)' }}>
-      <BackgroundDoodles reducedMotion={Boolean(reduceMotion)} />
+      <BackgroundDoodles reducedMotion={isReduced} />
 
       {/* -- Nav -- */}
       <header
@@ -194,7 +201,7 @@ export default function Page() {
 
       {/* -- Sections -- */}
       <main>
-        <HeroSection reduceMotion={Boolean(reduceMotion)} scrollTo={scrollTo} />
+        <HeroSection reduceMotion={isReduced} scrollTo={scrollTo} />
         <BrandMarqueeSection />
         <SectionDivider label="about the agency" />
         <AboutSection />
@@ -203,7 +210,7 @@ export default function Page() {
         <SectionDivider label="selected projects" />
         <ProjectsSection scrollTo={scrollTo} />
         <SectionDivider label="our process" />
-        <ProcessSection reduceMotion={Boolean(reduceMotion)} />
+        <ProcessSection reduceMotion={isReduced} />
         <SectionDivider label="client testimonials" />
         <TestimonialsSection />
         <SectionDivider label="pricing plans" />

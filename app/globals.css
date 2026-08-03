@@ -33,8 +33,12 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto; /* changed from smooth to prevent fighting with Lenis smooth scroll */
   text-rendering: geometricPrecision;
+}
+
+section {
+  scroll-margin-top: 80px; /* offset to prevent sticky header overlapping section content */
 }
 
 body {

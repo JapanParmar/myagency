@@ -13,9 +13,34 @@ type HeroSectionProps = {
 
 export default function HeroSection({ reduceMotion, scrollTo }: Readonly<HeroSectionProps>) {
   useEffect(() => {
-    if (!reduceMotion) {
-      renderCanvas();
+    if (reduceMotion) return;
+
+    const cleanup = renderCanvas();
+    const canvasEl = document.getElementById('canvas') as any;
+
+    let observer: IntersectionObserver | null = null;
+    if (canvasEl && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              canvasEl.resumeAnimation?.();
+            } else {
+              canvasEl.pauseAnimation?.();
+            }
+          });
+        },
+        { threshold: 0.02 }
+      );
+      observer.observe(canvasEl);
     }
+
+    return () => {
+      cleanup();
+      if (observer) {
+        observer.disconnect();
+      }
+    };
   }, [reduceMotion]);
 
   return (

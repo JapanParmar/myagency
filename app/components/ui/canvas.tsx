@@ -1,174 +1,217 @@
 // @ts-nocheck
-function n(e) {
-  this.init(e || {});
-}
-n.prototype = {
-  init: function (e) {
-    this.phase = e.phase || 0;
-    this.offset = e.offset || 0;
-    this.frequency = e.frequency || 0.001;
-    this.amplitude = e.amplitude || 1;
-  },
-  update: function () {
-    return (
-      (this.phase += this.frequency),
-      (e = this.offset + Math.sin(this.phase) * this.amplitude)
-    );
-  },
-  value: function () {
-    return e;
-  },
-};
 
-function Line(e) {
-  this.init(e || {});
-}
+export const renderCanvas = function () {
+  const canvasEl = document.getElementById("canvas");
+  if (!canvasEl) return () => {};
+  
+  const ctx = canvasEl.getContext("2d");
+  if (!ctx) return () => {};
 
-Line.prototype = {
-  init: function (e) {
-    this.spring = e.spring + 0.1 * Math.random() - 0.05;
-    this.friction = E.friction + 0.01 * Math.random() - 0.005;
-    this.nodes = [];
-    for (var t, n = 0; n < E.size; n++) {
-      t = new Node();
-      t.x = pos.x;
-      t.y = pos.y;
-      this.nodes.push(t);
-    }
-  },
-  update: function () {
-    let e = this.spring,
-      t = this.nodes[0];
-    t.vx += (pos.x - t.x) * e;
-    t.vy += (pos.y - t.y) * e;
-    for (var n, i = 0, a = this.nodes.length; i < a; i++)
-      (t = this.nodes[i]),
-        0 < i &&
-          ((n = this.nodes[i - 1]),
-          (t.vx += (n.x - t.x) * e),
-          (t.vy += (n.y - t.y) * e),
-          (t.vx += n.vx * E.dampening),
-          (t.vy += n.vy * E.dampening)),
-        (t.vx *= this.friction),
-        (t.vy *= this.friction),
-        (t.x += t.vx),
-        (t.y += t.vy),
-        (e *= E.tension);
-  },
-  draw: function () {
-    let e,
-      t,
-      n = this.nodes[0].x,
-      i = this.nodes[0].y;
-    ctx.beginPath();
-    ctx.moveTo(n, i);
-    for (var a = 1, o = this.nodes.length - 2; a < o; a++) {
-      e = this.nodes[a];
-      t = this.nodes[a + 1];
-      n = 0.5 * (e.x + t.x);
-      i = 0.5 * (e.y + t.y);
-      ctx.quadraticCurveTo(e.x, e.y, n, i);
-    }
-    e = this.nodes[a];
-    t = this.nodes[a + 1];
-    ctx.quadraticCurveTo(e.x, e.y, t.x, t.y);
-    ctx.stroke();
-    ctx.closePath();
-  },
-};
+  let animationFrameId: number | null = null;
+  let running = true;
 
-function onMousemove(e) {
-  function o() {
-    lines = [];
-    for (let e = 0; e < E.trails; e++)
-      lines.push(new Line({ spring: 0.45 + (e / E.trails) * 0.025 }));
-  }
-  function c(e) {
-    e.touches
-      ? ((pos.x = e.touches[0].pageX), (pos.y = e.touches[0].pageY))
-      : ((pos.x = e.clientX), (pos.y = e.clientY)),
-      e.preventDefault();
-  }
-  function l(e) {
-    1 == e.touches.length &&
-      ((pos.x = e.touches[0].pageX), (pos.y = e.touches[0].pageY));
-  }
-  document.removeEventListener("mousemove", onMousemove),
-    document.removeEventListener("touchstart", onMousemove),
-    document.addEventListener("mousemove", c),
-    document.addEventListener("touchmove", c),
-    document.addEventListener("touchstart", l),
-    c(e),
-    o(),
-    render();
-}
-
-function render() {
-  if (ctx.running) {
-    ctx.globalCompositeOperation = "source-over";
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.globalCompositeOperation = "lighter";
-    ctx.strokeStyle = "hsla(" + Math.round(f.update()) + ",100%,50%,0.025)";
-    ctx.lineWidth = 10;
-    for (var e, t = 0; t < E.trails; t++) {
-      (e = lines[t]).update();
-      e.draw();
-    }
-    ctx.frame++;
-    window.requestAnimationFrame(render);
-  }
-}
-
-function resizeCanvas() {
-  ctx.canvas.width = window.innerWidth - 20;
-  ctx.canvas.height = window.innerHeight;
-}
-
-var ctx,
-  f,
-  e = 0,
-  pos = {},
-  lines = [],
-  E = {
-    debug: true,
+  const config = {
     friction: 0.5,
     trails: 80,
     size: 50,
     dampening: 0.025,
     tension: 0.99,
   };
-function Node() {
-  this.x = 0;
-  this.y = 0;
-  this.vy = 0;
-  this.vx = 0;
-}
 
-export const renderCanvas = function () {
-  const canvasEl = document.getElementById("canvas");
-  if (!canvasEl) return;
-  ctx = canvasEl.getContext("2d");
-  if (!ctx) return;
-  ctx.running = true;
-  ctx.frame = 1;
-  f = new n({
+  const pos = { x: 0, y: 0 };
+  let lines: Line[] = [];
+
+  class Oscillator {
+    constructor(options) {
+      this.phase = options.phase || 0;
+      this.offset = options.offset || 0;
+      this.frequency = options.frequency || 0.001;
+      this.amplitude = options.amplitude || 1;
+      this.val = 0;
+    }
+    update() {
+      this.phase += this.frequency;
+      this.val = this.offset + Math.sin(this.phase) * this.amplitude;
+      return this.val;
+    }
+  }
+
+  const f = new Oscillator({
     phase: Math.random() * 2 * Math.PI,
     amplitude: 85,
     frequency: 0.0015,
     offset: 285,
   });
-  document.addEventListener("mousemove", onMousemove);
-  document.addEventListener("touchstart", onMousemove);
-  document.body.addEventListener("orientationchange", resizeCanvas);
-  window.addEventListener("resize", resizeCanvas);
-  window.addEventListener("focus", () => {
-    if (!ctx.running) {
-      ctx.running = true;
+
+  class Node {
+    constructor() {
+      this.x = 0;
+      this.y = 0;
+      this.vx = 0;
+      this.vy = 0;
+    }
+  }
+
+  class Line {
+    constructor(options) {
+      this.spring = options.spring + 0.1 * Math.random() - 0.05;
+      this.friction = config.friction + 0.01 * Math.random() - 0.005;
+      this.nodes = [];
+      for (let i = 0; i < config.size; i++) {
+        const node = new Node();
+        node.x = pos.x;
+        node.y = pos.y;
+        this.nodes.push(node);
+      }
+    }
+    update() {
+      let springFactor = this.spring;
+      let node = this.nodes[0];
+      node.vx += (pos.x - node.x) * springFactor;
+      node.vy += (pos.y - node.y) * springFactor;
+      
+      for (let i = 0; i < this.nodes.length; i++) {
+        node = this.nodes[i];
+        if (i > 0) {
+          const prevNode = this.nodes[i - 1];
+          node.vx += (prevNode.x - node.x) * springFactor;
+          node.vy += (prevNode.y - node.y) * springFactor;
+          node.vx += prevNode.vx * config.dampening;
+          node.vy += prevNode.vy * config.dampening;
+        }
+        node.vx *= this.friction;
+        node.vy *= this.friction;
+        node.x += node.vx;
+        node.y += node.vy;
+        springFactor *= config.tension;
+      }
+    }
+    draw() {
+      let node = this.nodes[0];
+      ctx.beginPath();
+      ctx.moveTo(node.x, node.y);
+      let i;
+      for (i = 1; i < this.nodes.length - 2; i++) {
+        const curr = this.nodes[i];
+        const next = this.nodes[i + 1];
+        const xc = 0.5 * (curr.x + next.x);
+        const yc = 0.5 * (curr.y + next.y);
+        ctx.quadraticCurveTo(curr.x, curr.y, xc, yc);
+      }
+      const last = this.nodes[i];
+      const nextLast = this.nodes[i + 1];
+      ctx.quadraticCurveTo(last.x, last.y, nextLast.x, nextLast.y);
+      ctx.stroke();
+      ctx.closePath();
+    }
+  }
+
+  function resizeCanvas() {
+    if (!canvasEl) return;
+    canvasEl.width = window.innerWidth;
+    canvasEl.height = window.innerHeight;
+  }
+
+  function initLines() {
+    lines = [];
+    for (let i = 0; i < config.trails; i++) {
+      lines.push(new Line({ spring: 0.45 + (i / config.trails) * 0.025 }));
+    }
+  }
+
+  function updateMouseCoords(e) {
+    if (e.touches && e.touches.length > 0) {
+      pos.x = e.touches[0].clientX;
+      pos.y = e.touches[0].clientY;
+    } else {
+      pos.x = e.clientX;
+      pos.y = e.clientY;
+    }
+  }
+
+  let mouseHasMoved = false;
+
+  function onFirstInteraction(e) {
+    document.removeEventListener("mousemove", onFirstInteraction);
+    document.removeEventListener("touchstart", onFirstInteraction);
+    
+    document.addEventListener("mousemove", updateMouseCoords);
+    document.addEventListener("touchmove", updateMouseCoords, { passive: true });
+    
+    updateMouseCoords(e);
+    initLines();
+    mouseHasMoved = true;
+    
+    if (running) {
       render();
     }
-  });
-  window.addEventListener("blur", () => {
-    ctx.running = true;
-  });
+  }
+
+  function render() {
+    if (!running) return;
+
+    ctx.globalCompositeOperation = "source-over";
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = "hsla(" + Math.round(f.update()) + ",100%,50%,0.025)";
+    ctx.lineWidth = 10;
+
+    for (let i = 0; i < config.trails; i++) {
+      const line = lines[i];
+      if (line) {
+        line.update();
+        line.draw();
+      }
+    }
+
+    animationFrameId = window.requestAnimationFrame(render);
+  }
+
+  pos.x = window.innerWidth / 2;
+  pos.y = window.innerHeight / 2;
+
+  document.addEventListener("mousemove", onFirstInteraction);
+  document.addEventListener("touchstart", onFirstInteraction);
+  window.addEventListener("resize", resizeCanvas);
+  
+  if (window.screen && window.screen.orientation) {
+    window.screen.orientation.addEventListener("change", resizeCanvas);
+  }
+
   resizeCanvas();
+
+  canvasEl.pauseAnimation = () => {
+    running = false;
+    if (animationFrameId) {
+      window.cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  };
+
+  canvasEl.resumeAnimation = () => {
+    if (!running) {
+      running = true;
+      if (mouseHasMoved) {
+        render();
+      }
+    }
+  };
+
+  return () => {
+    running = false;
+    if (animationFrameId) {
+      window.cancelAnimationFrame(animationFrameId);
+    }
+    document.removeEventListener("mousemove", onFirstInteraction);
+    document.removeEventListener("touchstart", onFirstInteraction);
+    document.removeEventListener("mousemove", updateMouseCoords);
+    document.removeEventListener("touchmove", updateMouseCoords);
+    window.removeEventListener("resize", resizeCanvas);
+    if (window.screen && window.screen.orientation) {
+      window.screen.orientation.removeEventListener("change", resizeCanvas);
+    }
+    
+    delete canvasEl.pauseAnimation;
+    delete canvasEl.resumeAnimation;
+  };
 };
