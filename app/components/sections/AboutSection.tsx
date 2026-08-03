@@ -74,7 +74,7 @@ export default function AboutSection() {
         </motion.div>
 
         {/* Right: stat stack */}
-        <div className="flex flex-row gap-4 lg:flex-col">
+        <div className="flex flex-col sm:flex-row gap-4 lg:flex-col">
           {stats.map((s, i) => (
             <motion.div
               key={s.value}

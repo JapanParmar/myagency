@@ -38,6 +38,7 @@ const services = [
 
 export default function ServicesSection() {
   const [hovered, setHovered] = useState<number | null>(null);
+  const [clicked, setClicked] = useState<number | null>(null);
 
   return (
     <section id="services" className="mx-auto max-w-[1200px] px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
@@ -57,34 +58,35 @@ export default function ServicesSection() {
       <div className="mt-10" style={{ borderTop: '1px solid var(--color-fog)' }}>
         {services.map((svc, i) => {
           const Icon = svc.icon;
-          const isH = hovered === i;
+          const isExpanded = hovered === i || clicked === i;
           return (
             <motion.div
               key={svc.num}
               onHoverStart={() => setHovered(i)}
               onHoverEnd={() => setHovered(null)}
-              animate={{ backgroundColor: isH ? '#09090b' : 'rgba(9, 9, 11, 0)' }}
+              onClick={() => setClicked(prev => prev === i ? null : i)}
+              animate={{ backgroundColor: isExpanded ? '#09090b' : 'rgba(9, 9, 11, 0)' }}
               transition={{ duration: 0.18 }}
               className="cursor-pointer rounded-[16px]"
               style={{ borderBottom: '1px solid var(--color-fog)' }}
             >
               <div className="flex items-center gap-4 px-4 py-5">
                 <motion.span
-                  animate={{ color: isH ? 'rgba(255,255,255,0.2)' : 'var(--color-pebble)' }}
+                  animate={{ color: isExpanded ? 'rgba(255,255,255,0.2)' : 'var(--color-pebble)' }}
                   className="w-8 flex-shrink-0 text-[12px] font-bold tracking-[0.6px]"
                 >
                   {svc.num}
                 </motion.span>
 
                 <motion.div
-                  animate={{ backgroundColor: isH ? 'rgba(255,255,255,0.1)' : 'var(--color-fog)' }}
+                  animate={{ backgroundColor: isExpanded ? 'rgba(255,255,255,0.1)' : 'var(--color-fog)' }}
                   className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[12px]"
                 >
-                  <Icon size={17} color={isH ? '#fff' : 'var(--color-graphite)'} />
+                  <Icon size={17} color={isExpanded ? '#fff' : 'var(--color-graphite)'} />
                 </motion.div>
 
                 <motion.h3
-                  animate={{ color: isH ? '#fff' : 'var(--color-obsidian)' }}
+                  animate={{ color: isExpanded ? '#fff' : 'var(--color-obsidian)' }}
                   className="flex-1 text-[16px] font-semibold tracking-[-0.32px] sm:text-[17px]"
                 >
                   {svc.name}
@@ -92,8 +94,8 @@ export default function ServicesSection() {
 
                 <motion.span
                   animate={{
-                    backgroundColor: isH ? 'rgba(255,255,255,0.1)' : 'var(--color-fog)',
-                    color: isH ? 'rgba(255,255,255,0.7)' : 'var(--color-steel)',
+                    backgroundColor: isExpanded ? 'rgba(255,255,255,0.1)' : 'var(--color-fog)',
+                    color: isExpanded ? 'rgba(255,255,255,0.7)' : 'var(--color-steel)',
                   }}
                   className="hidden rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.8px] sm:block"
                 >
@@ -101,7 +103,7 @@ export default function ServicesSection() {
                 </motion.span>
 
                 <motion.span
-                  animate={{ rotate: isH ? 45 : 0, color: isH ? '#ff5a00' : 'var(--color-ash)' }}
+                  animate={{ rotate: isExpanded ? 90 : 0, color: isExpanded ? '#ff5a00' : 'var(--color-ash)' }}
                   transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   className="ml-1 flex-shrink-0 text-[18px] leading-none"
                 >
@@ -110,7 +112,7 @@ export default function ServicesSection() {
               </div>
 
               <AnimatePresence>
-                {isH && (
+                {isExpanded && (
                   <motion.div
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
@@ -119,7 +121,7 @@ export default function ServicesSection() {
                     className="overflow-hidden"
                   >
                     <p
-                      className="px-4 pb-5 pl-[80px] text-[14px] leading-[1.6]"
+                      className="px-4 pb-5 pl-[80px] pr-4 text-[14px] leading-[1.6]"
                       style={{ color: 'var(--color-ash)' }}
                     >
                       {svc.desc}

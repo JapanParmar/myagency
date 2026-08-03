@@ -104,43 +104,42 @@ export default function HeroSection({ reduceMotion, scrollTo }: Readonly<HeroSec
             {/* 4 Corner Plus Icons */}
             <Plus
               strokeWidth={3}
-              className="absolute -left-3.5 -top-3.5 h-7 w-7"
+              className="absolute -left-3.5 -top-3.5 h-7 w-7 hidden sm:block"
               style={{ color: 'var(--color-ember)' }}
             />
             <Plus
               strokeWidth={3}
-              className="absolute -bottom-3.5 -left-3.5 h-7 w-7"
+              className="absolute -bottom-3.5 -left-3.5 h-7 w-7 hidden sm:block"
               style={{ color: 'var(--color-ember)' }}
             />
             <Plus
               strokeWidth={3}
-              className="absolute -right-3.5 -top-3.5 h-7 w-7"
+              className="absolute -right-3.5 -top-3.5 h-7 w-7 hidden sm:block"
               style={{ color: 'var(--color-ember)' }}
             />
             <Plus
               strokeWidth={3}
-              className="absolute -bottom-3.5 -right-3.5 h-7 w-7"
+              className="absolute -bottom-3.5 -right-3.5 h-7 w-7 hidden sm:block"
               style={{ color: 'var(--color-ember)' }}
             />
-
-            {/* Headline */}
-            <h1
-              className="font-display select-none text-center text-4xl font-bold leading-none tracking-tight text-[var(--color-obsidian)] sm:text-5xl md:text-7xl lg:text-7xl"
-              style={{ letterSpacing: '-2.5px' }}
-            >
-              Your complete platform for Web Development.
-            </h1>
-
-            {/* Availability indicator */}
-            <div className="mt-6 flex items-center justify-center gap-1.5">
-              <span className="relative flex h-2.5 w-2.5 items-center justify-center">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: 'var(--color-meadow-green)' }}></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--color-meadow-green)' }}></span>
-              </span>
-              <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-meadow-green)' }}>
-                Available Now
-              </p>
-            </div>
+ 
+             {/* Headline */}
+             <h1
+               className="font-display select-none text-center text-4xl sm:text-5xl md:text-7xl font-bold leading-[1.1] sm:leading-none tracking-[-1px] sm:tracking-[-1.5px] md:tracking-[-2.5px] text-[var(--color-obsidian)]"
+             >
+               Your complete platform for Web Development.
+             </h1>
+ 
+             {/* Availability indicator */}
+             <div className="mt-6 flex items-center justify-center gap-1.5">
+               <span className="relative flex h-2.5 w-2.5 items-center justify-center">
+                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: 'var(--color-meadow-green)' }}></span>
+                 <span className="relative inline-flex h-2 w-2 rounded-full" style={{ backgroundColor: 'var(--color-meadow-green)' }}></span>
+               </span>
+               <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--color-meadow-green)' }}>
+                 Available Now
+               </p>
+             </div>
           </div>
         </div>
 
